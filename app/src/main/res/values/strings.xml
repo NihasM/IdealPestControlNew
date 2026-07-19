@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Ideal Pest Control</string>
+    <string name="brand_ideal">IDEAL</string>
+    <string name="brand_pest_control_services">PEST CONTROL SERVICES</string>
+    <string name="logo_content_description">Ideal Pest Control mascot</string>
+    <string name="start_title_safeguarding">Safeguarding Your</string>
+    <string name="start_title_home_health">Home &amp; Health</string>
+    <string name="start_service_message">Within 24 hrs our service providers\ncommunicate with you</string>
+    <string name="get_started">Get Started</string>
+    <string name="termite_content_description">Termite</string>
+    <string name="auth_welcome">Welcome</string>
+    <string name="auth_choose_option">Choose Login or Sign Up to continue</string>
+    <string name="login">Login</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="full_name">Full name</string>
+    <string name="email">Email</string>
+    <string name="mobile_number">Mobile number</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="create_account">Create Account</string>
+    <string name="worker_content_description">Pest control worker illustration</string>
+    <string name="name_validation_error">Enter your full name</string>
+    <string name="email_validation_error">Enter a valid email address</string>
+    <string name="mobile_validation_error">Enter a valid mobile number</string>
+    <string name="password_validation_error">Use 8+ characters with a number and special character</string>
+    <string name="confirm_password_validation_error">Passwords do not match</string>
+</resources>

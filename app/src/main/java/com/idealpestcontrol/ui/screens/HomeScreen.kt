@@ -1,0 +1,554 @@
+package com.idealpestcontrol.ui.screens
+
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.idealpestcontrol.R
+import com.idealpestcontrol.ui.theme.IdealPestControlTheme
+
+private val Espresso = Color(0xFF3A241C)
+private val Cocoa = Color(0xFF8D451E)
+private val Terracotta = Color(0xFFB85F2E)
+private val Cream = Color(0xFFFFFBF6)
+private val Sand = Color(0xFFF3E8D8)
+private val MutedBrown = Color(0xFF79685E)
+
+private data class Pest(val name: String, val symbol: String, val color: Color)
+
+private val pests = listOf(
+    Pest("Ants", "🐜", Color(0xFFF4EBDD)),
+    Pest("Cockroaches", "🪳", Color(0xFFFFE8D8)),
+    Pest("Mosquitoes", "🦟", Color(0xFFE7F0E9)),
+    Pest("Rodents", "🐭", Color(0xFFF1E8E4)),
+    Pest("Termites", "🐜", Color(0xFFF8ECDD)),
+    Pest("Bed Bugs", "◉", Color(0xFFF1E4DF))
+)
+
+private data class Service(
+    val title: String,
+    val description: String,
+    val type: ServiceIcon,
+    val tint: Color
+)
+
+private enum class ServiceIcon { Home, Building, Office }
+
+private val services = listOf(
+    Service("Home Pest Control", "Complete protection for every corner of your home", ServiceIcon.Home, Color(0xFFF2E3CD)),
+    Service("Building Protection", "Reliable plans for apartments and shared spaces", ServiceIcon.Building, Color(0xFFE4E9E6)),
+    Service("Office Pest Control", "Quiet treatments with zero workday disruption", ServiceIcon.Office, Color(0xFFECE5DF))
+)
+
+@Composable
+fun HomeScreen(modifier: Modifier = Modifier) {
+    val statusBarPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    var selectedNavigation by remember { mutableIntStateOf(0) }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Cream)
+    ) {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(22.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = statusBarPadding),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                start = 20.dp,
+                top = 18.dp,
+                end = 20.dp,
+                bottom = 126.dp + navigationBarPadding
+            )
+        ) {
+            item { HomeHeader() }
+            item { HeroCard() }
+            item { PestSlider() }
+            item { OfferCard() }
+            item { ServicesSection() }
+        }
+
+        GlassBottomNavigation(
+            selectedIndex = selectedNavigation,
+            onSelected = { selectedNavigation = it },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(start = 18.dp, end = 18.dp, bottom = 14.dp + navigationBarPadding)
+        )
+    }
+}
+
+@Composable
+private fun HomeHeader() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        DefaultProfileIcon()
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "Hello, Nihas!",
+                color = Espresso,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.ExtraBold
+            )
+            Text(
+                text = "Let’s make your home pest-free",
+                color = MutedBrown,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+        Image(
+            painter = painterResource(R.drawable.ic_logo),
+            contentDescription = "Ideal Pest Control app icon",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.size(58.dp)
+        )
+    }
+}
+
+@Composable
+private fun DefaultProfileIcon() {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(54.dp)
+            .shadow(8.dp, CircleShape)
+            .clip(CircleShape)
+            .background(Color.White.copy(alpha = 0.94f))
+            .border(1.dp, Color(0xFFE7D7C8), CircleShape)
+    ) {
+        Canvas(Modifier.size(33.dp)) {
+            drawCircle(
+                color = Cocoa,
+                radius = size.minDimension * 0.19f,
+                center = Offset(size.width / 2f, size.height * 0.31f)
+            )
+            drawArc(
+                color = Cocoa,
+                startAngle = 200f,
+                sweepAngle = 140f,
+                useCenter = true,
+                topLeft = Offset(size.width * 0.15f, size.height * 0.49f),
+                size = Size(size.width * 0.7f, size.height * 0.52f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun HeroCard() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(250.dp)
+            .shadow(16.dp, RoundedCornerShape(28.dp), ambientColor = Cocoa.copy(alpha = 0.18f))
+            .clip(RoundedCornerShape(28.dp))
+            .background(Sand)
+    ) {
+        Image(
+            painter = painterResource(R.drawable.home_hero_pest_control),
+            contentDescription = "Pest control professional treating a home",
+            contentScale = ContentScale.Crop,
+            alignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.horizontalGradient(
+                        0f to Color(0xFFFFF8EE).copy(alpha = 0.98f),
+                        0.48f to Color(0xFFFFF8EE).copy(alpha = 0.76f),
+                        0.72f to Color.Transparent
+                    )
+                )
+        )
+        Column(
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 22.dp, end = 154.dp)
+        ) {
+            Text(
+                text = "A pest-free home is a happy home",
+                color = Espresso,
+                fontSize = 25.sp,
+                lineHeight = 29.sp,
+                fontWeight = FontWeight.ExtraBold
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = "Safe care for healthier living.",
+                color = MutedBrown,
+                fontSize = 13.sp,
+                lineHeight = 17.sp
+            )
+            Spacer(Modifier.height(16.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(Cocoa)
+                    .clickable { }
+                    .padding(horizontal = 15.dp, vertical = 11.dp)
+            ) {
+                Text("Book Service", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.width(8.dp))
+                Text("→", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = 22.dp, bottom = 14.dp)
+        ) {
+            Box(Modifier.size(width = 18.dp, height = 5.dp).clip(CircleShape).background(Terracotta))
+            Box(Modifier.size(5.dp).clip(CircleShape).background(Espresso.copy(alpha = 0.18f)))
+            Box(Modifier.size(5.dp).clip(CircleShape).background(Espresso.copy(alpha = 0.18f)))
+        }
+    }
+}
+
+@Composable
+private fun PestSlider() {
+    Column(verticalArrangement = Arrangement.spacedBy(13.dp)) {
+        Text(
+            text = "What’s bothering you?",
+            color = Espresso,
+            fontSize = 21.sp,
+            fontWeight = FontWeight.ExtraBold
+        )
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(pests) { pest -> PestItem(pest) }
+        }
+    }
+}
+
+@Composable
+private fun PestItem(pest: Pest) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.width(78.dp)
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(72.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .background(pest.color)
+                .clickable { }
+        ) {
+            Text(text = pest.symbol, fontSize = 31.sp)
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = pest.name,
+            color = Espresso,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun OfferCard() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(25.dp))
+            .background(Brush.horizontalGradient(listOf(Color(0xFFB56D36), Color(0xFF713515))))
+            .padding(horizontal = 18.dp, vertical = 18.dp)
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(68.dp)
+                .border(1.dp, Color.White.copy(alpha = 0.75f), CircleShape)
+                .padding(5.dp)
+                .border(1.dp, Color.White.copy(alpha = 0.5f), CircleShape)
+        ) {
+            Text("20%\nOFF", color = Color.White, fontSize = 16.sp, lineHeight = 17.sp, fontWeight = FontWeight.ExtraBold)
+        }
+        Spacer(Modifier.width(14.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text("Summer special", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.ExtraBold)
+            Text("Save on all services this week", color = Color.White.copy(alpha = 0.82f), fontSize = 12.sp)
+        }
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(42.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.95f))
+                .clickable { }
+        ) {
+            Text("→", color = Cocoa, fontSize = 21.sp, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
+private fun ServicesSection() {
+    Column(verticalArrangement = Arrangement.spacedBy(13.dp)) {
+        Text(
+            text = "Our Services",
+            color = Espresso,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.ExtraBold
+        )
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            items(services) { service -> ServiceCard(service) }
+        }
+    }
+}
+
+@Composable
+private fun ServiceCard(service: Service) {
+    Column(
+        modifier = Modifier
+            .width(190.dp)
+            .height(225.dp)
+            .shadow(9.dp, RoundedCornerShape(24.dp), ambientColor = Cocoa.copy(alpha = 0.12f))
+            .clip(RoundedCornerShape(24.dp))
+            .background(Color.White)
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(105.dp)
+                .background(
+                    Brush.linearGradient(
+                        listOf(service.tint.copy(alpha = 0.72f), service.tint)
+                    )
+                )
+        ) {
+            ServiceIllustration(service.type)
+        }
+        Column(modifier = Modifier.padding(14.dp)) {
+            Text(
+                text = service.title,
+                color = Espresso,
+                fontSize = 16.sp,
+                lineHeight = 19.sp,
+                fontWeight = FontWeight.ExtraBold
+            )
+            Spacer(Modifier.height(5.dp))
+            Text(
+                text = service.description,
+                color = MutedBrown,
+                fontSize = 11.sp,
+                lineHeight = 15.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun ServiceIllustration(type: ServiceIcon) {
+    Canvas(Modifier.size(72.dp)) {
+        val stroke = Stroke(width = 3.2.dp.toPx(), cap = StrokeCap.Round)
+        val color = Cocoa
+        when (type) {
+            ServiceIcon.Home -> {
+                val roof = Path().apply {
+                    moveTo(size.width * 0.15f, size.height * 0.48f)
+                    lineTo(size.width * 0.5f, size.height * 0.2f)
+                    lineTo(size.width * 0.85f, size.height * 0.48f)
+                }
+                drawPath(roof, color, style = stroke)
+                drawRect(color, Offset(size.width * 0.24f, size.height * 0.45f), Size(size.width * 0.52f, size.height * 0.36f), style = stroke)
+                drawRect(color, Offset(size.width * 0.44f, size.height * 0.59f), Size(size.width * 0.15f, size.height * 0.22f), style = stroke)
+            }
+            ServiceIcon.Building -> {
+                drawRoundRect(color, Offset(size.width * 0.24f, size.height * 0.17f), Size(size.width * 0.52f, size.height * 0.66f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(5.dp.toPx()), style = stroke)
+                repeat(3) { row ->
+                    repeat(2) { column ->
+                        drawCircle(color, 2.8.dp.toPx(), Offset(size.width * (0.39f + column * 0.22f), size.height * (0.32f + row * 0.16f)))
+                    }
+                }
+            }
+            ServiceIcon.Office -> {
+                drawRoundRect(color, Offset(size.width * 0.18f, size.height * 0.32f), Size(size.width * 0.64f, size.height * 0.45f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(7.dp.toPx()), style = stroke)
+                drawLine(color, Offset(size.width * 0.18f, size.height * 0.5f), Offset(size.width * 0.82f, size.height * 0.5f), strokeWidth = 3.2.dp.toPx())
+                drawRoundRect(color, Offset(size.width * 0.38f, size.height * 0.2f), Size(size.width * 0.24f, size.height * 0.19f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(5.dp.toPx()), style = stroke)
+            }
+        }
+    }
+}
+
+private data class NavDestination(val label: String, val icon: NavIcon)
+private enum class NavIcon { Home, Calendar, Profile, Info }
+
+private val navigationItems = listOf(
+    NavDestination("Home", NavIcon.Home),
+    NavDestination("Bookings", NavIcon.Calendar),
+    NavDestination("Profile", NavIcon.Profile),
+    NavDestination("About", NavIcon.Info)
+)
+
+@Composable
+private fun GlassBottomNavigation(
+    selectedIndex: Int,
+    onSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(76.dp)
+            .shadow(22.dp, RoundedCornerShape(30.dp), ambientColor = Espresso.copy(alpha = 0.22f))
+            .clip(RoundedCornerShape(30.dp))
+            .background(Color.White.copy(alpha = 0.88f))
+            .border(1.dp, Color.White.copy(alpha = 0.95f), RoundedCornerShape(30.dp))
+            .padding(6.dp)
+    ) {
+        val itemWidth = maxWidth / navigationItems.size
+        val indicatorOffset by animateDpAsState(
+            targetValue = itemWidth * selectedIndex,
+            animationSpec = spring(dampingRatio = 0.72f, stiffness = 420f),
+            label = "glass navigation slider"
+        )
+        Box(
+            modifier = Modifier
+                .offset(x = indicatorOffset)
+                .width(itemWidth)
+                .fillMaxSize()
+                .clip(RoundedCornerShape(25.dp))
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Cocoa.copy(alpha = 0.94f), Color(0xFF6F3116).copy(alpha = 0.96f))
+                    )
+                )
+                .border(1.dp, Color.White.copy(alpha = 0.3f), RoundedCornerShape(25.dp))
+        )
+        Row(modifier = Modifier.fillMaxSize()) {
+            navigationItems.forEachIndexed { index, item ->
+                val selected = index == selectedIndex
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .width(itemWidth)
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(25.dp))
+                        .clickable { onSelected(index) }
+                ) {
+                    NavigationIcon(item.icon, if (selected) Color.White else MutedBrown)
+                    Spacer(Modifier.height(3.dp))
+                    Text(
+                        text = item.label,
+                        color = if (selected) Color.White else MutedBrown,
+                        fontSize = 10.sp,
+                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NavigationIcon(type: NavIcon, color: Color) {
+    Canvas(Modifier.size(24.dp)) {
+        val stroke = Stroke(width = 2.2.dp.toPx(), cap = StrokeCap.Round)
+        when (type) {
+            NavIcon.Home -> {
+                val path = Path().apply {
+                    moveTo(size.width * 0.16f, size.height * 0.48f)
+                    lineTo(size.width * 0.5f, size.height * 0.18f)
+                    lineTo(size.width * 0.84f, size.height * 0.48f)
+                    lineTo(size.width * 0.76f, size.height * 0.48f)
+                    lineTo(size.width * 0.76f, size.height * 0.82f)
+                    lineTo(size.width * 0.24f, size.height * 0.82f)
+                    lineTo(size.width * 0.24f, size.height * 0.48f)
+                    close()
+                }
+                drawPath(path, color, style = stroke)
+            }
+            NavIcon.Calendar -> {
+                drawRoundRect(color, Offset(size.width * 0.15f, size.height * 0.24f), Size(size.width * 0.7f, size.height * 0.62f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(4.dp.toPx()), style = stroke)
+                drawLine(color, Offset(size.width * 0.15f, size.height * 0.43f), Offset(size.width * 0.85f, size.height * 0.43f), strokeWidth = 2.2.dp.toPx())
+                drawLine(color, Offset(size.width * 0.34f, size.height * 0.14f), Offset(size.width * 0.34f, size.height * 0.31f), strokeWidth = 2.2.dp.toPx(), cap = StrokeCap.Round)
+                drawLine(color, Offset(size.width * 0.66f, size.height * 0.14f), Offset(size.width * 0.66f, size.height * 0.31f), strokeWidth = 2.2.dp.toPx(), cap = StrokeCap.Round)
+            }
+            NavIcon.Profile -> {
+                drawCircle(color, size.minDimension * 0.17f, Offset(size.width / 2f, size.height * 0.31f), style = stroke)
+                drawArc(color, 200f, 140f, false, Offset(size.width * 0.2f, size.height * 0.5f), Size(size.width * 0.6f, size.height * 0.38f), style = stroke)
+            }
+            NavIcon.Info -> {
+                drawCircle(color, size.minDimension * 0.36f, center, style = stroke)
+                drawCircle(color, 1.5.dp.toPx(), Offset(size.width / 2f, size.height * 0.33f))
+                drawLine(color, Offset(size.width / 2f, size.height * 0.47f), Offset(size.width / 2f, size.height * 0.69f), strokeWidth = 2.2.dp.toPx(), cap = StrokeCap.Round)
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun HomeScreenPreview() {
+    IdealPestControlTheme(dynamicColor = false) {
+        HomeScreen()
+    }
+}

@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.idealpestcontrol.ui.screens.LoginSignUpScreen
+import com.idealpestcontrol.ui.screens.HomeScreen
 import com.idealpestcontrol.ui.screens.SplashScreen
 import com.idealpestcontrol.ui.screens.StartScreen
 import com.idealpestcontrol.ui.theme.IdealPestControlTheme
@@ -33,8 +34,8 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                BackHandler(enabled = currentScreen == 2) {
-                    currentScreen = 1
+                BackHandler(enabled = currentScreen >= 2) {
+                    currentScreen = if (currentScreen == 3) 2 else 1
                 }
 
                 when (currentScreen) {
@@ -46,7 +47,12 @@ class MainActivity : ComponentActivity() {
                         onGetStarted = { currentScreen = 2 }
                     )
 
-                    else -> LoginSignUpScreen()
+                    2 -> LoginSignUpScreen(
+                        onLogin = { _, _ -> currentScreen = 3 },
+                        onSignUp = { _, _, _, _ -> currentScreen = 3 }
+                    )
+
+                    else -> HomeScreen()
                 }
             }
         }

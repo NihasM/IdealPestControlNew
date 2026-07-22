@@ -2,12 +2,6 @@ package com.idealpestcontrol.ui.screens
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,14 +17,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.idealpestcontrol.R
 import com.idealpestcontrol.ui.theme.IdealPestControlTheme
+import kotlinx.coroutines.launch
 
 private data class OnboardingPage(
     @param:DrawableRes val imageRes: Int,
@@ -83,26 +77,15 @@ fun StartScreen(
     modifier: Modifier = Modifier,
     onGetStarted: () -> Unit = {}
 ) {
-    var currentPage by rememberSaveable { mutableIntStateOf(0) }
+    val pagerState = rememberPagerState(pageCount = { onboardingPages.size })
+    val coroutineScope = rememberCoroutineScope()
+    val currentPage = pagerState.currentPage
     val isLastPage = currentPage == onboardingPages.lastIndex
 
     Box(modifier = modifier.fillMaxSize()) {
-        AnimatedContent(
-            targetState = currentPage,
-            transitionSpec = {
-                (
-                    slideInHorizontally(
-                        animationSpec = tween(durationMillis = 430),
-                        initialOffsetX = { fullWidth -> fullWidth }
-                    ) + fadeIn(animationSpec = tween(durationMillis = 260))
-                    ).togetherWith(
-                    slideOutHorizontally(
-                        animationSpec = tween(durationMillis = 430),
-                        targetOffsetX = { fullWidth -> -fullWidth }
-                    ) + fadeOut(animationSpec = tween(durationMillis = 260))
-                )
-            },
-            label = "onboarding_page_slide",
+        HorizontalPager(
+            state = pagerState,
+            beyondViewportPageCount = 1,
             modifier = Modifier.fillMaxSize()
         ) { pageIndex ->
             OnboardingPageContent(page = onboardingPages[pageIndex])
@@ -133,8 +116,13 @@ fun StartScreen(
                     .clickable {
                         if (isLastPage) {
                             onGetStarted()
-                        } else {
-                            currentPage += 1
+                        } else if (!pagerState.isScrollInProgress) {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(
+                                    page = currentPage + 1,
+                                    animationSpec = tween(durationMillis = 430)
+                                )
+                            }
                         }
                     }
                     .padding(horizontal = 14.dp, vertical = 11.dp)

@@ -113,7 +113,10 @@ private val heroSlides = listOf(
 )
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    userName: String = "there"
+) {
     val statusBarPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     var selectedNavigation by remember { mutableIntStateOf(0) }
@@ -133,7 +136,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 bottom = 126.dp + navigationBarPadding
             )
         ) {
-            item { HomeHeader() }
+            item { HomeHeader(userName = userName) }
             item { HeroCarousel() }
             item { PestSlider() }
             item {
@@ -155,7 +158,9 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun HomeHeader() {
+private fun HomeHeader(userName: String) {
+    val greetingName = userName.trim().substringBefore(' ').ifBlank { "there" }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -166,7 +171,7 @@ private fun HomeHeader() {
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Hello, Nihas!",
+                text = "Hello, $greetingName!",
                 color = Espresso,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.ExtraBold

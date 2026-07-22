@@ -21,7 +21,7 @@
     <string name="start">START</string>
     <string name="details_title">Tell Us About You</string>
     <string name="details_subtitle">Share a few details so we can personalize your pest control experience.</string>
-    <string name="continue_to_home">CONTINUE →</string>
+    <string name="continue_to_home">CONTINUE</string>
     <string name="details_illustration_description">Cartoon cockroach being chased away</string>
     <string name="auth_welcome">Welcome</string>
     <string name="auth_choose_option">Choose Login or Sign Up to continue</string>

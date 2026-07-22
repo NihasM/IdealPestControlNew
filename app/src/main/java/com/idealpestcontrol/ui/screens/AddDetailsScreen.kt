@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -81,6 +82,7 @@ fun AddDetailsScreen(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .fillMaxWidth(0.58f)
+                .offset(x = 18.dp)
                 .navigationBarsPadding()
                 .padding(bottom = 10.dp)
                 .clip(RoundedCornerShape(24.dp))

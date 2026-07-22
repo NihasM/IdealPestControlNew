@@ -51,6 +51,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.idealpestcontrol.R
@@ -58,9 +59,7 @@ import com.idealpestcontrol.ui.theme.IdealPestControlTheme
 
 private val Espresso = Color(0xFF3A241C)
 private val Cocoa = Color(0xFF8D451E)
-private val Terracotta = Color(0xFFB85F2E)
 private val Cream = Color(0xFFFFFBF6)
-private val Sand = Color(0xFFF3E8D8)
 private val MutedBrown = Color(0xFF79685E)
 
 private data class Pest(val name: String, val symbol: String, val color: Color)
@@ -78,7 +77,8 @@ private data class Service(
     val title: String,
     val description: String,
     val type: ServiceIcon,
-    val tint: Color
+    val tint: Color,
+    val imageRes: Int? = null
 )
 
 private enum class ServiceIcon { Home, Building, Office }
@@ -87,6 +87,29 @@ private val services = listOf(
     Service("Home Pest Control", "Complete protection for every corner of your home", ServiceIcon.Home, Color(0xFFF2E3CD)),
     Service("Building Protection", "Reliable plans for apartments and shared spaces", ServiceIcon.Building, Color(0xFFE4E9E6)),
     Service("Office Pest Control", "Quiet treatments with zero workday disruption", ServiceIcon.Office, Color(0xFFECE5DF))
+)
+
+private val heroSlides = listOf(
+    BannerItem(
+        imageUrl = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1400&q=85",
+        title = "A pest-free home is a happy home",
+        subtitle = "Safe, reliable care for healthier everyday living.",
+        contentDescription = "A professional carefully cleaning and protecting a home",
+        actionLabel = "Book Service"
+    ),
+    BannerItem(
+        imageUrl = "https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=1400&q=85",
+        title = "Expert protection for every space",
+        subtitle = "Reliable treatment with lasting peace of mind.",
+        contentDescription = "Professional home-care supplies prepared for service",
+        actionLabel = "Explore Plans"
+    ),
+    BannerItem(
+        imageUrl = "https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1400&q=85",
+        title = "Keep unwanted guests away",
+        subtitle = "Professional pest care whenever you need it.",
+        contentDescription = "A bright, clean and comfortable modern kitchen"
+    )
 )
 
 @Composable
@@ -106,16 +129,18 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .padding(top = statusBarPadding),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                start = 20.dp,
                 top = 18.dp,
-                end = 20.dp,
                 bottom = 126.dp + navigationBarPadding
             )
         ) {
             item { HomeHeader() }
-            item { HeroCard() }
+            item { HeroCarousel() }
             item { PestSlider() }
-            item { OfferCard() }
+            item {
+                Box(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+                    OfferCard()
+                }
+            }
             item { ServicesSection() }
         }
 
@@ -135,7 +160,9 @@ private fun HomeHeader() {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
     ) {
-        DefaultProfileIcon()
+        Box(modifier = Modifier.padding(start = 12.dp)) {
+            DefaultProfileIcon()
+        }
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -190,78 +217,11 @@ private fun DefaultProfileIcon() {
 }
 
 @Composable
-private fun HeroCard() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(250.dp)
-            .shadow(16.dp, RoundedCornerShape(28.dp), ambientColor = Cocoa.copy(alpha = 0.18f))
-            .clip(RoundedCornerShape(28.dp))
-            .background(Sand)
-    ) {
-        Image(
-            painter = painterResource(R.drawable.home_hero_pest_control),
-            contentDescription = "Pest control professional treating a home",
-            contentScale = ContentScale.Crop,
-            alignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.horizontalGradient(
-                        0f to Color(0xFFFFF8EE).copy(alpha = 0.98f),
-                        0.48f to Color(0xFFFFF8EE).copy(alpha = 0.76f),
-                        0.72f to Color.Transparent
-                    )
-                )
-        )
-        Column(
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 22.dp, end = 154.dp)
-        ) {
-            Text(
-                text = "A pest-free home is a happy home",
-                color = Espresso,
-                fontSize = 25.sp,
-                lineHeight = 29.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = "Safe care for healthier living.",
-                color = MutedBrown,
-                fontSize = 13.sp,
-                lineHeight = 17.sp
-            )
-            Spacer(Modifier.height(16.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(Cocoa)
-                    .clickable { }
-                    .padding(horizontal = 15.dp, vertical = 11.dp)
-            ) {
-                Text("Book Service", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.width(8.dp))
-                Text("→", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            }
-        }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(start = 22.dp, bottom = 14.dp)
-        ) {
-            Box(Modifier.size(width = 18.dp, height = 5.dp).clip(CircleShape).background(Terracotta))
-            Box(Modifier.size(5.dp).clip(CircleShape).background(Espresso.copy(alpha = 0.18f)))
-            Box(Modifier.size(5.dp).clip(CircleShape).background(Espresso.copy(alpha = 0.18f)))
-        }
-    }
+private fun HeroCarousel() {
+    InfiniteBannerCarousel(
+        banners = heroSlides,
+        placeholderRes = R.drawable.home_hero_pest_control
+    )
 }
 
 @Composable
@@ -271,9 +231,13 @@ private fun PestSlider() {
             text = "What’s bothering you?",
             color = Espresso,
             fontSize = 21.sp,
-            fontWeight = FontWeight.ExtraBold
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(start = 20.dp)
         )
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)
+        ) {
             items(pests) { pest -> PestItem(pest) }
         }
     }
@@ -352,61 +316,87 @@ private fun ServicesSection() {
             text = "Our Services",
             color = Espresso,
             fontSize = 22.sp,
-            fontWeight = FontWeight.ExtraBold
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(start = 20.dp)
         )
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            items(services) { service -> ServiceCard(service) }
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)
+        ) {
+            items(services) { service -> ServiceCard(service, 168.dp) }
         }
     }
 }
 
 @Composable
-private fun ServiceCard(service: Service) {
+private fun ServiceCard(service: Service, cardWidth: Dp) {
     Column(
         modifier = Modifier
-            .width(190.dp)
-            .height(225.dp)
-            .shadow(9.dp, RoundedCornerShape(24.dp), ambientColor = Cocoa.copy(alpha = 0.12f))
-            .clip(RoundedCornerShape(24.dp))
+            .width(cardWidth)
+            .height(205.dp)
+            .shadow(6.dp, RoundedCornerShape(16.dp), ambientColor = Cocoa.copy(alpha = 0.12f))
+            .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(105.dp)
+                .height(104.dp)
                 .background(
                     Brush.linearGradient(
                         listOf(service.tint.copy(alpha = 0.72f), service.tint)
                     )
                 )
         ) {
-            ServiceIllustration(service.type)
+            service.imageRes?.let { imageRes ->
+                Image(
+                    painter = painterResource(imageRes),
+                    contentDescription = service.title,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } ?: ServiceIllustration(service.type, Modifier.size(58.dp))
         }
-        Column(modifier = Modifier.padding(14.dp)) {
-            Text(
-                text = service.title,
-                color = Espresso,
-                fontSize = 16.sp,
-                lineHeight = 19.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
-            Spacer(Modifier.height(5.dp))
-            Text(
-                text = service.description,
-                color = MutedBrown,
-                fontSize = 11.sp,
-                lineHeight = 15.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+        Box(modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp, vertical = 9.dp)) {
+            Column(modifier = Modifier.padding(end = 2.dp)) {
+                Text(
+                    text = service.title,
+                    color = Espresso,
+                    fontSize = 14.sp,
+                    lineHeight = 17.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = service.description,
+                    color = MutedBrown,
+                    fontSize = 9.sp,
+                    lineHeight = 12.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(25.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFF8F5F1))
+                    .clickable { }
+            ) {
+                Text("→", color = Cocoa, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
 
 @Composable
-private fun ServiceIllustration(type: ServiceIcon) {
-    Canvas(Modifier.size(72.dp)) {
+private fun ServiceIllustration(type: ServiceIcon, modifier: Modifier = Modifier) {
+    Canvas(modifier) {
         val stroke = Stroke(width = 3.2.dp.toPx(), cap = StrokeCap.Round)
         val color = Cocoa
         when (type) {

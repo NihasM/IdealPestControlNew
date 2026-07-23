@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -62,15 +63,15 @@ private val Cocoa = Color(0xFF8D451E)
 private val Cream = Color(0xFFFFFBF6)
 private val MutedBrown = Color(0xFF79685E)
 
-private data class Pest(val name: String, val symbol: String, val color: Color)
+private data class Pest(val name: String, val imageRes: Int, val color: Color)
 
 private val pests = listOf(
-    Pest("Ants", "🐜", Color(0xFFF4EBDD)),
-    Pest("Cockroaches", "🪳", Color(0xFFFFE8D8)),
-    Pest("Mosquitoes", "🦟", Color(0xFFE7F0E9)),
-    Pest("Rodents", "🐭", Color(0xFFF1E8E4)),
-    Pest("Termites", "🐜", Color(0xFFF8ECDD)),
-    Pest("Bed Bugs", "◉", Color(0xFFF1E4DF))
+    Pest("Ants", R.drawable.pest_ants, Color(0xFFF4EBDD)),
+    Pest("Cockroaches", R.drawable.pest_cockroach, Color(0xFFFFE8D8)),
+    Pest("Mosquitoes", R.drawable.pest_mosquito, Color(0xFFE7F0E9)),
+    Pest("Rodents", R.drawable.pest_rodents, Color(0xFFF1E8E4)),
+    Pest("Termites", R.drawable.pest_termite, Color(0xFFF8ECDD)),
+    Pest("Bed Bugs", R.drawable.pest_bed_bugs, Color(0xFFF1E4DF))
 )
 
 private data class Service(
@@ -81,12 +82,13 @@ private data class Service(
     val imageRes: Int? = null
 )
 
-private enum class ServiceIcon { Home, Building, Office }
+private enum class ServiceIcon { Home, Building, Office, Industrial }
 
 private val services = listOf(
-    Service("Home Pest Control", "Complete protection for every corner of your home", ServiceIcon.Home, Color(0xFFF2E3CD)),
-    Service("Building Protection", "Reliable plans for apartments and shared spaces", ServiceIcon.Building, Color(0xFFE4E9E6)),
-    Service("Office Pest Control", "Quiet treatments with zero workday disruption", ServiceIcon.Office, Color(0xFFECE5DF))
+    Service("Home Pest Control", "Complete protection for every corner of your home", ServiceIcon.Home, Color(0xFFF2E3CD), R.drawable.service_house),
+    Service("Building Protection", "Reliable plans for apartments and shared spaces", ServiceIcon.Building, Color(0xFFE4E9E6), R.drawable.service_building),
+    Service("Office Pest Control", "Quiet treatments with zero workday disruption", ServiceIcon.Office, Color(0xFFECE5DF), R.drawable.service_office),
+    Service("Industrial Pest Control", "Specialist protection for factories and industrial sites", ServiceIcon.Industrial, Color(0xFFE7E2DB), R.drawable.service_industrial)
 )
 
 private val heroSlides = listOf(
@@ -262,7 +264,14 @@ private fun PestItem(pest: Pest) {
                 .background(pest.color)
                 .clickable { }
         ) {
-            Text(text = pest.symbol, fontSize = 31.sp)
+            Image(
+                painter = painterResource(pest.imageRes),
+                contentDescription = pest.name,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(7.dp)
+            )
         }
         Spacer(Modifier.height(8.dp))
         Text(
@@ -328,7 +337,7 @@ private fun ServicesSection() {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)
         ) {
-            items(services) { service -> ServiceCard(service, 168.dp) }
+            items(services) { service -> ServiceCard(service, 190.dp) }
         }
     }
 }
@@ -338,7 +347,7 @@ private fun ServiceCard(service: Service, cardWidth: Dp) {
     Column(
         modifier = Modifier
             .width(cardWidth)
-            .height(205.dp)
+            .height(230.dp)
             .shadow(6.dp, RoundedCornerShape(16.dp), ambientColor = Cocoa.copy(alpha = 0.12f))
             .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
@@ -347,7 +356,7 @@ private fun ServiceCard(service: Service, cardWidth: Dp) {
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(104.dp)
+                .height(125.dp)
                 .background(
                     Brush.linearGradient(
                         listOf(service.tint.copy(alpha = 0.72f), service.tint)
@@ -358,8 +367,11 @@ private fun ServiceCard(service: Service, cardWidth: Dp) {
                 Image(
                     painter = painterResource(imageRes),
                     contentDescription = service.title,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(2.dp)
+                        .scale(1.15f)
                 )
             } ?: ServiceIllustration(service.type, Modifier.size(58.dp))
         }
@@ -368,8 +380,8 @@ private fun ServiceCard(service: Service, cardWidth: Dp) {
                 Text(
                     text = service.title,
                     color = Espresso,
-                    fontSize = 14.sp,
-                    lineHeight = 17.sp,
+                    fontSize = 15.sp,
+                    lineHeight = 18.sp,
                     fontWeight = FontWeight.ExtraBold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -378,8 +390,8 @@ private fun ServiceCard(service: Service, cardWidth: Dp) {
                 Text(
                     text = service.description,
                     color = MutedBrown,
-                    fontSize = 9.sp,
-                    lineHeight = 12.sp,
+                    fontSize = 10.sp,
+                    lineHeight = 14.sp,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -388,7 +400,7 @@ private fun ServiceCard(service: Service, cardWidth: Dp) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .size(25.dp)
+                    .size(28.dp)
                     .clip(CircleShape)
                     .background(Color(0xFFF8F5F1))
                     .clickable { }
@@ -428,17 +440,22 @@ private fun ServiceIllustration(type: ServiceIcon, modifier: Modifier = Modifier
                 drawLine(color, Offset(size.width * 0.18f, size.height * 0.5f), Offset(size.width * 0.82f, size.height * 0.5f), strokeWidth = 3.2.dp.toPx())
                 drawRoundRect(color, Offset(size.width * 0.38f, size.height * 0.2f), Size(size.width * 0.24f, size.height * 0.19f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(5.dp.toPx()), style = stroke)
             }
+            ServiceIcon.Industrial -> {
+                drawRect(color, Offset(size.width * 0.17f, size.height * 0.48f), Size(size.width * 0.66f, size.height * 0.32f), style = stroke)
+                drawLine(color, Offset(size.width * 0.17f, size.height * 0.48f), Offset(size.width * 0.37f, size.height * 0.34f), strokeWidth = 3.2.dp.toPx())
+                drawLine(color, Offset(size.width * 0.37f, size.height * 0.34f), Offset(size.width * 0.53f, size.height * 0.48f), strokeWidth = 3.2.dp.toPx())
+                drawRect(color, Offset(size.width * 0.64f, size.height * 0.18f), Size(size.width * 0.12f, size.height * 0.3f), style = stroke)
+            }
         }
     }
 }
 
 private data class NavDestination(val label: String, val icon: NavIcon)
-private enum class NavIcon { Home, Calendar, Profile, Info }
+private enum class NavIcon { Home, Calendar, Info }
 
 private val navigationItems = listOf(
     NavDestination("Home", NavIcon.Home),
     NavDestination("Bookings", NavIcon.Calendar),
-    NavDestination("Profile", NavIcon.Profile),
     NavDestination("About", NavIcon.Info)
 )
 
@@ -526,10 +543,6 @@ private fun NavigationIcon(type: NavIcon, color: Color) {
                 drawLine(color, Offset(size.width * 0.15f, size.height * 0.43f), Offset(size.width * 0.85f, size.height * 0.43f), strokeWidth = 2.2.dp.toPx())
                 drawLine(color, Offset(size.width * 0.34f, size.height * 0.14f), Offset(size.width * 0.34f, size.height * 0.31f), strokeWidth = 2.2.dp.toPx(), cap = StrokeCap.Round)
                 drawLine(color, Offset(size.width * 0.66f, size.height * 0.14f), Offset(size.width * 0.66f, size.height * 0.31f), strokeWidth = 2.2.dp.toPx(), cap = StrokeCap.Round)
-            }
-            NavIcon.Profile -> {
-                drawCircle(color, size.minDimension * 0.17f, Offset(size.width / 2f, size.height * 0.31f), style = stroke)
-                drawArc(color, 200f, 140f, false, Offset(size.width * 0.2f, size.height * 0.5f), Size(size.width * 0.6f, size.height * 0.38f), style = stroke)
             }
             NavIcon.Info -> {
                 drawCircle(color, size.minDimension * 0.36f, center, style = stroke)

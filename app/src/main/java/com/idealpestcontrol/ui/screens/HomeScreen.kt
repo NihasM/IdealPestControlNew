@@ -66,12 +66,14 @@ private val MutedBrown = Color(0xFF79685E)
 private data class Pest(val name: String, val imageRes: Int, val color: Color)
 
 private val pests = listOf(
-    Pest("Ants", R.drawable.pest_ants, Color(0xFFF4EBDD)),
+    Pest("Termites", R.drawable.pest_termite, Color(0xFFF8ECDD)),
     Pest("Cockroaches", R.drawable.pest_cockroach, Color(0xFFFFE8D8)),
+    Pest("Rodents", R.drawable.pest_rodents, Color(0xFFF1E8E4)),
+    Pest("Bed Bugs", R.drawable.pest_bed_bugs, Color(0xFFF1E4DF)),
     Pest("Mosquitoes", R.drawable.pest_mosquito, Color(0xFFE7F0E9)),
     Pest("Rodents", R.drawable.pest_rodents, Color(0xFFF1E8E4)),
-    Pest("Termites", R.drawable.pest_termite, Color(0xFFF8ECDD)),
-    Pest("Bed Bugs", R.drawable.pest_bed_bugs, Color(0xFFF1E4DF))
+    Pest("Ants", R.drawable.pest_ants, Color(0xFFF4EBDD)),
+
 )
 
 private data class Service(
@@ -91,20 +93,18 @@ private val services = listOf(
     Service("Industrial Pest Control", "Specialist protection for factories and industrial sites", ServiceIcon.Industrial, Color(0xFFE7E2DB), R.drawable.service_industrial)
 )
 
-private val heroSlides = listOf(
+internal val homeHeroSlides = listOf(
     BannerItem(
         imageUrl = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1400&q=85",
         title = "A pest-free home is a happy home",
         subtitle = "Safe, reliable care for healthier everyday living.",
-        contentDescription = "A professional carefully cleaning and protecting a home",
-        actionLabel = "Book Service"
+        contentDescription = "A professional carefully cleaning and protecting a home"
     ),
     BannerItem(
         imageUrl = "https://images.unsplash.com/photo-1563453392212-326f5e854473?auto=format&fit=crop&w=1400&q=85",
         title = "Expert protection for every space",
         subtitle = "Reliable treatment with lasting peace of mind.",
-        contentDescription = "Professional home-care supplies prepared for service",
-        actionLabel = "Explore Plans"
+        contentDescription = "Professional home-care supplies prepared for service"
     ),
     BannerItem(
         imageUrl = "https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1400&q=85",
@@ -117,7 +117,9 @@ private val heroSlides = listOf(
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    userName: String = "there"
+    userName: String = "there",
+    onPestSelected: (String) -> Unit = {},
+    onServiceSelected: (String) -> Unit = {}
 ) {
     val statusBarPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -140,13 +142,13 @@ fun HomeScreen(
         ) {
             item { HomeHeader(userName = userName) }
             item { HeroCarousel() }
-            item { PestSlider() }
+            item { PestSlider(onPestSelected = onPestSelected) }
             item {
                 Box(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
                     OfferCard()
                 }
             }
-            item { ServicesSection() }
+            item { ServicesSection(onServiceSelected = onServiceSelected) }
         }
 
         GlassBottomNavigation(
@@ -226,13 +228,13 @@ private fun DefaultProfileIcon() {
 @Composable
 private fun HeroCarousel() {
     InfiniteBannerCarousel(
-        banners = heroSlides,
+        banners = homeHeroSlides,
         placeholderRes = R.drawable.home_hero_pest_control
     )
 }
 
 @Composable
-private fun PestSlider() {
+private fun PestSlider(onPestSelected: (String) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(13.dp)) {
         Text(
             text = "What’s bothering you?",
@@ -245,16 +247,27 @@ private fun PestSlider() {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)
         ) {
-            items(pests) { pest -> PestItem(pest) }
+            items(pests) { pest ->
+                PestItem(
+                    pest = pest,
+                    onClick = { onPestSelected(pest.name) }
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun PestItem(pest: Pest) {
+private fun PestItem(pest: Pest, onClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(78.dp)
+        modifier = Modifier
+            .width(78.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .clickable(
+                onClickLabel = "View ${pest.name} details",
+                onClick = onClick
+            )
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -262,7 +275,6 @@ private fun PestItem(pest: Pest) {
                 .size(72.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .background(pest.color)
-                .clickable { }
         ) {
             Image(
                 painter = painterResource(pest.imageRes),
@@ -324,7 +336,7 @@ private fun OfferCard() {
 }
 
 @Composable
-private fun ServicesSection() {
+private fun ServicesSection(onServiceSelected: (String) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(13.dp)) {
         Text(
             text = "Our Services",
@@ -337,13 +349,19 @@ private fun ServicesSection() {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)
         ) {
-            items(services) { service -> ServiceCard(service, 190.dp) }
+            items(services) { service ->
+                ServiceCard(
+                    service = service,
+                    cardWidth = 190.dp,
+                    onClick = { onServiceSelected(service.title) }
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun ServiceCard(service: Service, cardWidth: Dp) {
+private fun ServiceCard(service: Service, cardWidth: Dp, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .width(cardWidth)
@@ -351,6 +369,10 @@ private fun ServiceCard(service: Service, cardWidth: Dp) {
             .shadow(6.dp, RoundedCornerShape(16.dp), ambientColor = Cocoa.copy(alpha = 0.12f))
             .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
+            .clickable(
+                onClickLabel = "View ${service.title} details",
+                onClick = onClick
+            )
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -403,7 +425,6 @@ private fun ServiceCard(service: Service, cardWidth: Dp) {
                     .size(28.dp)
                     .clip(CircleShape)
                     .background(Color(0xFFF8F5F1))
-                    .clickable { }
             ) {
                 Text("→", color = Cocoa, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             }

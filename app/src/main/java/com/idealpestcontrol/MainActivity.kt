@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
 import com.idealpestcontrol.ui.screens.AddDetailsScreen
 import com.idealpestcontrol.ui.screens.HomeScreen
+import com.idealpestcontrol.ui.screens.ServiceDetailScreen
 import com.idealpestcontrol.ui.screens.SplashScreen
 import com.idealpestcontrol.ui.screens.StartScreen
 import com.idealpestcontrol.ui.theme.IdealPestControlTheme
@@ -32,6 +33,16 @@ class MainActivity : ComponentActivity() {
                 var profileCompleted by rememberSaveable {
                     mutableStateOf(preferences.getBoolean("profile_completed", false))
                 }
+                var userName by rememberSaveable {
+                    mutableStateOf(preferences.getString("user_name", "").orEmpty())
+                }
+                var userMobile by rememberSaveable {
+                    mutableStateOf(preferences.getString("user_mobile", "").orEmpty())
+                }
+                var userEmail by rememberSaveable {
+                    mutableStateOf(preferences.getString("user_email", "").orEmpty())
+                }
+                var selectedDetail by rememberSaveable { mutableStateOf("") }
 
                 SideEffect {
                     val insetsController = WindowCompat.getInsetsController(
@@ -49,8 +60,8 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                BackHandler(enabled = currentScreen == 2) {
-                    currentScreen = 1
+                BackHandler(enabled = currentScreen == 2 || currentScreen == 4) {
+                    currentScreen = if (currentScreen == 4) 3 else 1
                 }
 
                 when (currentScreen) {
@@ -64,6 +75,9 @@ class MainActivity : ComponentActivity() {
 
                     2 -> AddDetailsScreen(
                         onContinue = { name, mobile, email ->
+                            userName = name
+                            userMobile = mobile
+                            userEmail = email
                             preferences.edit()
                                 .putString("user_name", name)
                                 .putString("user_mobile", mobile)
@@ -75,8 +89,34 @@ class MainActivity : ComponentActivity() {
                         }
                     )
 
-                    else -> HomeScreen(
-                        userName = preferences.getString("user_name", "there").orEmpty()
+                    3 -> HomeScreen(
+                        userName = userName,
+                        onPestSelected = { pestName ->
+                            selectedDetail = pestName
+                            currentScreen = 4
+                        },
+                        onServiceSelected = { serviceName ->
+                            selectedDetail = serviceName
+                            currentScreen = 4
+                        }
+                    )
+
+                    else -> ServiceDetailScreen(
+                        detailKey = selectedDetail,
+                        savedName = userName,
+                        savedMobile = userMobile,
+                        savedEmail = userEmail,
+                        onBack = { currentScreen = 3 },
+                        onInquiry = { name, mobile, email ->
+                            userName = name
+                            userMobile = mobile
+                            userEmail = email
+                            preferences.edit()
+                                .putString("user_name", name)
+                                .putString("user_mobile", mobile)
+                                .putString("user_email", email)
+                                .apply()
+                        }
                     )
                 }
             }

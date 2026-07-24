@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "147382934012",
+    "project_id": "ideal-pest-control-services",
+    "storage_bucket": "ideal-pest-control-services.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:147382934012:android:3a589bb99e18a5ddc07a79",
+        "android_client_info": {
+          "package_name": "com.idealpestcontrol"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZDfRMTz2QFV_1wVHV5gvBrFQPCOeMb5I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
